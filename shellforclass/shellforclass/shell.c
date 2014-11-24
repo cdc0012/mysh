@@ -1,18 +1,25 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-//#include <unistd.h>
+//
+//  mysh.c
+//  mysh
+//
 
-//DOES THIS WORK?!
-//Second Commit
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+//#include <unistd.h>
+#include <io.h>
+
+
 #define MAXLINE 256
 #define MYSH_EXIT "exit"
 #define MYSH_VER "ver"
 #define MYSH_PWD "pwd"
 #define QCR_C ".c"
 #define QCR_CPP ".cpp"
-#define VERSION_NUMBER "0.1"
+
+#define VERSION_NUMBER "1.0.0"
 #define COPYRIGHT_NOTICE "Copyright 2014"
+#define err "mysh: Error detected"
 
 
 // Function  Declarations
@@ -23,7 +30,6 @@ void qcr_cpp();
 // Main Program
 int main()
 {
-
 	// Variable declarations for main().
 	char *tline;
 	char token[MAXLINE];
@@ -31,6 +37,7 @@ int main()
 	char * pstr;
 	int  start, count;
 	char cwd[1024]; // magic number is not very safe....
+
 
 	//allocate space for the input line.  This could be static....
 	tline = (char*)calloc(MAXLINE, sizeof(char));
@@ -64,7 +71,7 @@ int main()
 
 			// Check for pwd command
 			if (strcmp(ptoken, MYSH_PWD) == 0) {
-				// must use a unix system call not just a call to "/bin/pwd" !! 
+				// must use a unix system call not just a call to "/bin/pwd" !!
 				// ...that would be an EXTERNAL COMMAND!
 				if (getcwd(cwd, sizeof(cwd)) != NULL)
 					printf("%s\n", cwd);
@@ -74,16 +81,18 @@ int main()
 
 			// Check for cd command
 			if (strcmp(ptoken, "cd") == 0) {
-				printf("DO THE cd COMMAND...\n");
+				if (ptoken == NULL)
+					chdir(getenv("HOME"));
+				else if (ptoken != NULL)
+					chdir(ptoken);
 			}
 
-			// Check for version 
-			if (strcmp(ptoken, MYSH_VER) == 0){
-
-				printf("%s %s\n", VERSION_NUMBER, COPYRIGHT_NOTICE);
+			// Check for ver command
+			if (strcmp(ptoken, "ver") == 0) {
+				printf("Version " VERSION_NUMBER " " COPYRIGHT_NOTICE "\n");
 			}
+
 			// Check for all the other internal commands ....
-
 
 			// Else...must be an external command....RUN IT !
 
@@ -97,7 +106,7 @@ int main()
 
 // This function prints the shell prompt and gets a line of input.
 // The input line is stored at the location specified by user (char *line).
-// The MAX size of the input line is also specified by the caller (max) to 
+// The MAX size of the input line is also specified by the caller (max) to
 // prevent any buffer overflow problems.
 // The input line is forced to be null terminated by this function.
 // Return value is the number of input characters on the line (less NULL)
@@ -122,3 +131,8 @@ void qcr_cpp()
 {
 	printf("PERFORMING QCR for CPP\n");
 }
+
+
+
+
+
